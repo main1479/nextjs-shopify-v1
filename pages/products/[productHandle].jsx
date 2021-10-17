@@ -5,7 +5,7 @@ import { formatPrice, getUniqueValues } from '../../utils/helpers';
 import ImageGallery from '../../components/ImageGallery';
 import Colors from '../../components/Colors';
 import Sizes from '../../components/Sizes';
-import { useShopContext } from '../../context/shopContext';
+import { useShopContext } from '../../context/ShopContext';
 
 export default function ProductDetails({ product: item }) {
 	const { addToCart } = useShopContext();
