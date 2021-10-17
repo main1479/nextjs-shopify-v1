@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
-import { ShopProvider } from '../context/shopContext';
+import { ShopProvider } from '../context/ShopContext';
 import 'tailwindcss/tailwind.css';
 
 function MyApp({ Component, pageProps }) {
