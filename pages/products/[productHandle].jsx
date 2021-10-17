@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Head from 'next/head';
 import { getProduct, getProductsInCollection } from '../../lib/shopify/shopify';
 import { formatPrice, getUniqueValues } from '../../utils/helpers';
 import ImageGallery from '../../components/ImageGallery';
@@ -61,6 +62,9 @@ export default function ProductDetails({ product: item }) {
 
 	return (
 		<div className="bg-white">
+			<Head>
+				<title>NEXT SHOP | {product.title}</title>
+			</Head>
 			<div className="pt-6 pb-16 sm:pb-24">
 				<div className="mt-8 max-w-2xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
 					<div className="lg:grid lg:grid-cols-12 lg:auto-rows-min lg:gap-x-8">
@@ -127,7 +131,7 @@ export const getStaticPaths = async () => {
 
 	return {
 		paths,
-		fallback: true,
+		fallback: false,
 	};
 };
 export const getStaticProps = async (context) => {
@@ -137,6 +141,6 @@ export const getStaticProps = async (context) => {
 		props: {
 			product,
 		},
-		revalidate: 1,
+		revalidate: 120,
 	};
 };

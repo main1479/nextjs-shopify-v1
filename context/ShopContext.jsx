@@ -7,7 +7,6 @@ export function ShopProvider({ children }) {
 	const [cart, setCart] = useState([]);
 	const [openCart, setOpenCart] = useState(false);
 	const [checkout, setCheckout] = useState({});
-	const [test, setTest] = useState(0);
 	const addToCart = async (newItem) => {
 		setOpenCart(true);
 		if (cart.length === 0) {
@@ -67,7 +66,6 @@ export function ShopProvider({ children }) {
 				setOpenCart,
 				checkout,
 				removeCartItem,
-				test,
 			}}
 		>
 			{children}

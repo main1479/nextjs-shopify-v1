@@ -1,17 +1,24 @@
 import Link from 'next/link';
 import MiniCart from './MiniCart';
 import { useShopContext } from '../context/shopContext';
+import { useEffect, useState } from 'react';
 export default function Nav() {
-	const { cart, checkout, openCart, setOpenCart, test } = useShopContext();
-	const cartQunatity =
-		cart.length > 0 &&
-		cart.reduce((acc, curr) => {
-			return acc + curr.quantity;
-		}, 0);
+	const { cart, checkout, openCart, setOpenCart } = useShopContext();
+	const [cartQunatity, setCartQuantity] = useState(0);
+
+	useEffect(() => {
+		const newQuantity =
+			cart.length > 0 &&
+			cart.reduce((acc, curr) => {
+				return acc + curr.quantity;
+			}, 0);
+
+		setCartQuantity(newQuantity);
+	}, [cart]);
 
 	return (
 		<nav className="bg-white shadow dark:bg-gray-800 sticky top-0 left-0 z-20">
-			<div className="container px-6 py-4 mx-auto md:flex md:justify-between md:items-center">
+			<div className="container px-6 py-4 mx-auto flex justify-between items-center">
 				<div className="flex items-center justify-between">
 					<div>
 						<Link href="/">
@@ -20,40 +27,11 @@ export default function Nav() {
 							</a>
 						</Link>
 					</div>
-
-					{/* <!-- Mobile menu button --> */}
-					<div className="flex md:hidden">
-						<button
-							type="button"
-							className="text-gray-500 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none focus:text-gray-600 dark:focus:text-gray-400"
-							aria-label="toggle menu"
-						>
-							<svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
-								<path
-									fillRule="evenodd"
-									d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
-								></path>
-							</svg>
-						</button>
-					</div>
 				</div>
 
 				{/* <!-- Mobile Menu open: "block", Menu closed: "hidden" --> */}
-				<div className="items-center md:flex">
-					<div className="flex flex-col md:flex-row md:mx-6">
-						<Link href="/products">
-							<a className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-500 dark:hover:text-indigo-400 md:mx-4 md:my-0">
-								Products
-							</a>
-						</Link>
-						<Link href="#">
-							<a className="my-1 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-500 dark:hover:text-indigo-400 md:mx-4 md:my-0">
-								About
-							</a>
-						</Link>
-					</div>
-
-					<div className="flex justify-center md:block">
+				<div className="items-center flex">
+					<div className="flex justify-center">
 						<button
 							className="relative text-gray-700 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-300"
 							onClick={() => setOpenCart(!openCart)}
