@@ -2,18 +2,16 @@ import Link from 'next/link';
 import MiniCart from './MiniCart';
 import { useShopContext } from '../context/ShopContext';
 import { useEffect, useState } from 'react';
+
 export default function Nav() {
 	const { cart, checkout, openCart, setOpenCart } = useShopContext();
-	const [cartQunatity, setCartQuantity] = useState(0);
-
+	const [cartQuantity, setCartQuantity] = useState(0);
 	useEffect(() => {
-		const newQuantity =
-			cart.length > 0 &&
-			cart.reduce((acc, curr) => {
-				return acc + curr.quantity;
-			}, 0);
+		const itemQuantity = cart.reduce((acc, curr) => {
+			return acc + curr.quantity;
+		}, 0);
 
-		setCartQuantity(newQuantity);
+		setCartQuantity(itemQuantity);
 	}, [cart]);
 
 	return (
@@ -47,13 +45,13 @@ export default function Nav() {
 								<path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l1.25 5h8.22l1.25-5H3.14zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" />
 							</svg>
 
-							{cartQunatity > 0 && (
+							{cartQuantity > 0 && (
 								<span className="absolute w-5 h-5 flex items-center justify-center -top-2 -right-2 p-1 text-xs text-white bg-indigo-500 rounded-full">
-									{cartQunatity}
+									{cartQuantity}
 								</span>
 							)}
 
-							<MiniCart products={cart} checkout={checkout} />
+							<MiniCart products={cart} />
 						</button>
 					</div>
 				</div>

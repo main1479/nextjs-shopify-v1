@@ -1,15 +1,37 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Dialog, Transition } from '@headlessui/react';
 import { useShopContext } from '../context/ShopContext';
 import { formatPrice } from '../utils/helpers';
 
-export default function MiniCart({ products, checkout }) {
-	const { openCart, setOpenCart, removeCartItem } = useShopContext();
+export default function MiniCart({ products }) {
+	const { openCart, setOpenCart, removeCartItem, createCheckoutLink } = useShopContext();
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(false);
+	const [checkout, setCheckout] = useState({});
 
 	const totalPrice = products.reduce((acc, product) => {
 		return (acc += +product.price * product.quantity);
 	}, 0);
+
+	const goCheckout = async () => {
+		setLoading(true);
+		const checkoutObj = await createCheckoutLink();
+		setCheckout(checkoutObj);
+		if (checkout.webUrl) {
+			setLoading(false);
+		}
+		setTimeout(() => {
+			if (!checkout.webUrl) setError(true);
+		}, 10 * 1000);
+	};
+
+	useEffect(() => {
+		if (checkout.webUrl) {
+			window.location.href = checkout.webUrl;
+		}
+		console.log(checkout);
+	}, [checkout]);
 
 	return (
 		<Transition.Root show={openCart} as={Fragment}>
@@ -72,59 +94,66 @@ export default function MiniCart({ products, checkout }) {
 										<div className="mt-8">
 											<div className="flow-root">
 												<ul role="list" className="-my-6 divide-y divide-gray-200">
-													{products.length === 0 && (
+													{error && (
+														<h3 className="text-center font-medium text-lg mt-10">
+															Something was wrong ;(
+														</h3>
+													)}
+													{!error && products.length === 0 && (
 														<h3 className="text-center font-medium text-lg mt-10">
 															There is no item ;(
 														</h3>
 													)}
-													{products.map((product) => (
-														<li key={product.id} className="py-6 flex">
-															<div className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
-																<img
-																	src={product.image}
-																	alt={product.altText}
-																	className="w-full h-full object-center object-cover"
-																/>
-															</div>
-
-															<div className="ml-4 flex-1 flex flex-col">
-																<div>
-																	<div className="flex justify-between text-base font-medium text-gray-900">
-																		<h3>
-																			<Link href={`/products/${product.handle}`}>
-																				<a onClick={() => setOpenCart(!openCart)}>
-																					{product.title}
-																				</a>
-																			</Link>
-																		</h3>
-																		<p className="ml-4">{formatPrice(product.price)}</p>
-																	</div>
-																	<p className="mt-1 text-sm text-gray-500">
-																		{product.variantTitle}
-																	</p>
+													{!error &&
+														products.length > 0 &&
+														products.map((product) => (
+															<li key={product.id} className="py-6 flex">
+																<div className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
+																	<img
+																		src={product.image}
+																		alt={product.altText}
+																		className="w-full h-full object-center object-cover"
+																	/>
 																</div>
-																<div className="flex-1 flex items-end justify-between text-sm">
-																	<p className="text-gray-500">Qty {product.quantity}</p>
 
-																	<div className="flex">
-																		<button
-																			type="button"
-																			className="font-medium text-indigo-600 hover:text-indigo-500"
-																			onClick={() => removeCartItem(product.id)}
-																		>
-																			Remove
-																		</button>
+																<div className="ml-4 flex-1 flex flex-col">
+																	<div>
+																		<div className="flex justify-between text-base font-medium text-gray-900">
+																			<h3>
+																				<Link href={`/products/${product.handle}`}>
+																					<a onClick={() => setOpenCart(!openCart)}>
+																						{product.title}
+																					</a>
+																				</Link>
+																			</h3>
+																			<p className="ml-4">{formatPrice(product.price)}</p>
+																		</div>
+																		<p className="mt-1 text-sm text-gray-500">
+																			{product.variantTitle}
+																		</p>
+																	</div>
+																	<div className="flex-1 flex items-end justify-between text-sm">
+																		<p className="text-gray-500">Qty {product.quantity}</p>
+
+																		<div className="flex">
+																			<button
+																				type="button"
+																				className="font-medium text-indigo-600 hover:text-indigo-500"
+																				onClick={() => removeCartItem(product.id)}
+																			>
+																				Remove
+																			</button>
+																		</div>
 																	</div>
 																</div>
-															</div>
-														</li>
-													))}
+															</li>
+														))}
 												</ul>
 											</div>
 										</div>
 									</div>
 
-									{products.length > 0 && (
+									{!error && products.length > 0 && (
 										<div className="border-t border-gray-200 py-6 px-4 sm:px-6">
 											<div className="flex justify-between text-base font-medium text-gray-900">
 												<p>Subtotal</p>
@@ -134,12 +163,14 @@ export default function MiniCart({ products, checkout }) {
 												Shipping and taxes calculated at checkout.
 											</p>
 											<div className="mt-6">
-												<a
-													href={checkout.webUrl}
-													className="flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+												<button
+													onClick={() => {
+														goCheckout();
+													}}
+													className="block w-full justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
 												>
-													Checkout
-												</a>
+													{!loading ? 'Checkout' : 'Prosessing...'}
+												</button>
 											</div>
 										</div>
 									)}

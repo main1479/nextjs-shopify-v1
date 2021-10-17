@@ -1,71 +1,68 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useReducer, useState } from 'react';
 import { createCheckout, updateCheckout } from '../lib/shopify/shopify';
+import reducer from './ShopReducer';
+
+const getStorredCart = () => {
+	const cart = localStorage.getItem('cart');
+	if (cart) {
+		return JSON.parse(localStorage.getItem('cart'));
+	} else {
+		return [];
+	}
+};
+
+const initialState = {
+	cart: [],
+};
 
 const ShopContext = createContext();
-
 export function ShopProvider({ children }) {
-	const [cart, setCart] = useState([]);
 	const [openCart, setOpenCart] = useState(false);
 	const [checkout, setCheckout] = useState({});
-	const addToCart = async (newItem) => {
-		setOpenCart(true);
-		if (cart.length === 0) {
-			setCart([newItem]);
-
-			const checkoutObj = await createCheckout(newItem.id, newItem.quantity);
-
-			setCheckout(checkoutObj);
-			localStorage.setItem('checkout', JSON.stringify([cart, checkoutObj]));
+	const [theme, setTheme] = useState('');
+	useEffect(() => {
+		const cart = localStorage.getItem('cart');
+		if (cart) {
+			initialState.cart = JSON.parse(localStorage.getItem('cart'));
 		} else {
-			let newCart = [];
-			cart.map((item) => {
-				if (item.id === newItem.id) {
-					item.quantity + 1;
-					newCart = [...cart];
-					return;
-				} else {
-					newCart = [...cart, newItem];
-				}
-			});
-
-			setCart(newCart);
-			const newCheckout = await updateCheckout(checkout?.id, newCart);
-			setCheckout(newCheckout);
-			localStorage.setItem('checkout', JSON.stringify([cart, newCheckout]));
+			initialState.cart = [];
 		}
-	};
+		setTheme('light');
+	}, []);
+	const [state, dispatch] = useReducer(reducer, initialState);
 
-	const removeCartItem = async (itemId) => {
-		const newItems = cart.filter((item) => item.id !== itemId);
-		setCart(newItems);
-		const newCheckout = await updateCheckout(checkout.id, newItems);
-		setCheckout(newCheckout);
-		localStorage.setItem('checkout', JSON.stringify([newItems, newCheckout]));
+	const addToCart = (newItem) => {
+		dispatch({ type: 'ADD_TO_CART', payload: newItem });
 	};
 
 	useEffect(() => {
-		if (localStorage.checkout) {
-			const cartObject = JSON.parse(localStorage.checkout);
+		localStorage.setItem('cart', JSON.stringify(state.cart));
+	}, [state.cart]);
 
-			if (cartObject[0].id) {
-				setCart([cartObject[0]]);
-			} else if (cartObject[0].length > 0) {
-				setCart(...[cartObject[0]]);
-			}
-			setCheckout(cartObject[1]);
-		}
-	}, []);
+	const removeCartItem = (itemId) => {
+		dispatch({ type: 'REMOVE_CART_ITEM', payload: { id: itemId } });
+	};
+	const clearCart = () => {
+		dispatch({ type: CLEAR_CART });
+	};
+
+	const createCheckoutLink = async () => {
+		const checkoutObj = await createCheckout(state.cart);
+		setCheckout(checkoutObj);
+
+		return checkoutObj;
+	};
 
 	return (
 		<ShopContext.Provider
 			value={{
+				...state,
 				addToCart,
-				checkout,
-				cart,
 				openCart,
 				setOpenCart,
-				checkout,
 				removeCartItem,
+				checkout,
+				createCheckoutLink,
 			}}
 		>
 			{children}
