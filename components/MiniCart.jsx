@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import Link from 'next/link';
 import { Dialog, Transition } from '@headlessui/react';
-import { useShopContext } from '../context/shopContext';
+import { useShopContext } from '../context/ShopContext';
 import { formatPrice } from '../utils/helpers';
 
 export default function MiniCart({ products, checkout }) {

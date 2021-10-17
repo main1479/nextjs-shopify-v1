@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import MiniCart from './MiniCart';
-import { useShopContext } from '../context/shopContext';
+import { useShopContext } from '../context/ShopContext';
 import { useEffect, useState } from 'react';
 export default function Nav() {
 	const { cart, checkout, openCart, setOpenCart } = useShopContext();
